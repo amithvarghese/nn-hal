@@ -36,6 +36,12 @@ namespace hardware {
 namespace neuralnetworks {
 namespace nnhal {
 
+enum class IntelDeviceType {
+    CPU,
+    GNA,
+    VPU,
+    OTHER
+};
 // For HAL-1.0 version
 using namespace ::android::hardware::neuralnetworks::V1_0;
 using V1_0_Model = ::android::hardware::neuralnetworks::V1_0::Model;
@@ -68,7 +74,7 @@ using HidlToken = android::hardware::hidl_array<uint8_t, 32>;
 class Driver : public ::android::hardware::neuralnetworks::V1_2::IDevice {
 public:
     Driver() {}
-    Driver(const char* name) : mDeviceName(name) {}
+    Driver(IntelDeviceType name) : mDeviceType(name) {}
 
     ~Driver() override {}
 
@@ -105,7 +111,7 @@ public:
     Return<void> getNumberOfCacheFilesNeeded(getNumberOfCacheFilesNeeded_cb cb) override;
 
 protected:
-    std::string mDeviceName;
+    IntelDeviceType mDeviceType;
 };
 
 }  // namespace nnhal

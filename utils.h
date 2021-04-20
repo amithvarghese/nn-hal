@@ -19,7 +19,7 @@
 #include <android-base/logging.h>
 #include <android/hidl/memory/1.0/IMemory.h>
 #include <android/log.h>
-#include <hardware/hardware.h>
+//#include <hardware/hardware.h>
 #include <hidlmemory/mapping.h>
 #include <log/log.h>
 #include <sys/mman.h>

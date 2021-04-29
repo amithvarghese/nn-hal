@@ -45,6 +45,9 @@ bool NnapiModelInfo::initializeRunTimeOperandInfo() {
             case OperandType::TENSOR_QUANT8_ASYMM:
                 ALOGE("OperandType::TENSOR_QUANT8_ASYMM is not supported");
                 break;
+            case OperandType::BOOL:
+                to.type = from.type;
+                break;
             default:
                 ALOGE("wrong operand type %d", from.type);
                 return false;
@@ -95,6 +98,20 @@ bool NnapiModelInfo::initializeRunTimeOperandInfo() {
 }
 
 // TODO: Move it to Utils class
+template <>
+bool NnapiModelInfo::GetConstFromBuffer(const uint8_t* buf, uint32_t len) {
+    VLOG(L1, "buf: %p, len: %d", buf, len);
+
+    if (len != 1) {
+        VLOG(L1, "boolean specialization.." );
+        // fix me if buffer is of type float and if float and OperandLifeTime::CONSTANT_REFERENCE
+        nnAssert(false);
+    }
+
+    VLOG(L1, "Inside %s (bool).. value=%d",__func__, *buf);
+    return (*buf)>0?true:false;
+}
+
 template <typename T>
 T NnapiModelInfo::GetConstFromBuffer(const uint8_t* buf, uint32_t len) {
     // ALOGD("buf: %p, len: %d", buf, len);
@@ -401,7 +418,7 @@ void* NnapiModelInfo::getBlobFromMemoryPoolOut(const Request& request, uint32_t 
 template int NnapiModelInfo::GetConstOperand<int>(unsigned int);
 template unsigned int NnapiModelInfo::GetConstOperand<unsigned int>(unsigned int);
 template int NnapiModelInfo::GetConstFromBuffer<int>(unsigned char const*, unsigned int);
-
+template uint8_t NnapiModelInfo::GetConstFromBuffer<uint8_t>(unsigned char const*, unsigned int);
 }  // namespace nnhal
 }  // namespace neuralnetworks
 }  // namespace hardware

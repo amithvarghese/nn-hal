@@ -85,6 +85,7 @@ Return<ErrorStatus> executeBase(const Request& request, MeasureTiming measure,
 
     // This thread is intentionally detached because the driver service
     // is expected to live forever.
+     ALOGD( "Driver::executeBase timing driverStart = %I64u", driverStart);
     std::thread([preparedModel, request, measure, driverStart, callback] {
         asyncExecute(request, measure, preparedModel, driverStart, callback);
     }).detach();
@@ -122,7 +123,7 @@ void asyncExecute(const Request& request, MeasureTiming measure, BasePreparedMod
     ALOGD("Run");
 
     plugin->infer();
-
+    if (measure == MeasureTiming::YES) deviceEnd = now();
     for (size_t i = 0; i < request.outputs.size(); i++) {
         auto outIndex = modelInfo->getModelOutputIndex(i);
         ALOGI("OutputIndex: %d", outIndex);
@@ -144,6 +145,14 @@ void asyncExecute(const Request& request, MeasureTiming measure, BasePreparedMod
         driverEnd = now();
         Timing timing = {.timeOnDevice = uint64_t(microsecondsDuration(deviceEnd, deviceStart)),
                          .timeInDriver = uint64_t(microsecondsDuration(driverEnd, driverStart))};
+
+        ALOGD( "Driver::asyncExecute timing deviceEnd = %I64u", deviceEnd);
+        ALOGD( "Driver::asyncExecute timing deviceStart = %I64u", deviceStart);
+        ALOGD( "Driver::asyncExecute timing driverEnd = %I64u", driverEnd);
+        ALOGD( "Driver::asyncExecute timing driverStart = %I64u", driverStart);
+        ALOGD( "Driver::asyncExecute timing timeOnDevice = %I64u", timing.timeOnDevice);
+        ALOGD( "Driver::asyncExecute timing timeInDriver = %I64u", timing.timeInDriver);
+
         returned = notify(callback, ErrorStatus::NONE, modelInfo->getOutputShapes(), timing);
     } else {
         returned = notify(callback, ErrorStatus::NONE, modelInfo->getOutputShapes(), kNoTiming);
@@ -185,6 +194,7 @@ static std::tuple<ErrorStatus, hidl_vec<V1_2::OutputShape>, Timing> executeSynch
     ALOGD("Run");
 
     plugin->infer();
+    if (measure == MeasureTiming::YES) deviceEnd = now();
 
     for (size_t i = 0; i < request.outputs.size(); i++) {
         auto outIndex = modelInfo->getModelOutputIndex(i);
@@ -207,6 +217,13 @@ static std::tuple<ErrorStatus, hidl_vec<V1_2::OutputShape>, Timing> executeSynch
         driverEnd = now();
         Timing timing = {.timeOnDevice = uint64_t(microsecondsDuration(deviceEnd, deviceStart)),
                          .timeInDriver = uint64_t(microsecondsDuration(driverEnd, driverStart))};
+
+        ALOGD( "Driver::executeSynchronouslyBase timing deviceEnd = %I64u", deviceEnd);
+        ALOGD( "Driver::executeSynchronouslyBase timing deviceStart = %I64u", deviceStart);
+        ALOGD( "Driver::executeSynchronouslyBase timing driverEnd = %I64u", driverEnd);
+        ALOGD( "Driver::executeSynchronouslyBase timing driverStart = %I64u", driverStart);
+        ALOGD( "Driver::executeSynchronouslyBase timing timeOnDevice = %I64u", timing.timeOnDevice);
+        ALOGD( "Driver::executeSynchronouslyBase timing timeInDriver = %I64u", timing.timeInDriver);
         return {ErrorStatus::NONE, modelInfo->getOutputShapes(), timing};
     }
     return {ErrorStatus::NONE, modelInfo->getOutputShapes(), kNoTiming};

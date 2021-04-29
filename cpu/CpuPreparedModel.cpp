@@ -40,8 +40,8 @@ bool CpuPreparedModel::initialize(const Model& model) {
         return false;
     }
     auto ngraph_net = std::make_shared<InferenceEngine::CNNNetwork>(ngraph_function);
-    ngraph_net->serialize("/data/vendor/neuralnetworks/ngraph_ir.xml",
-                          "/data/vendor/neuralnetworks/ngraph_ir.bin");
+    //ngraph_net->serialize("/data/vendor/neuralnetworks/ngraph_ir.xml",
+    //                      "/data/vendor/neuralnetworks/ngraph_ir.bin");
     mPlugin = std::make_shared<IENetwork>(ngraph_net);
     mPlugin->loadNetwork();
 
